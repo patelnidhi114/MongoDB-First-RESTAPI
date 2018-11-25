@@ -16,10 +16,10 @@ mongo = PyMongo(app)
 def get_all_items():
 	items = mongo.db.transactions
 	
-	output = []
-	for each in items.find():
-		output.append(each)
-	return jsonify({output})
+	#output = []
+	#for each in items.find():
+	#	output.append(each)
+	return jsonify({items})
 
 def add():
 	user = mongo.db.users
