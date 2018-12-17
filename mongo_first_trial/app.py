@@ -1,4 +1,4 @@
-from flask import Flask,render_template,jsonify,json,request
+from flask import Flask,render_template,jsonify,json,request,Response
 import json
 import pymongo
 from flask_pymongo import PyMongo
@@ -8,7 +8,7 @@ from flask_httpauth import HTTPBasicAuth
 app = Flask(__name__)
 
 auth = HTTPBasicAuth()
-uri = 'mongodb://nidhi:nidhi123@ds119350.mlab.com:19350/mongo_first_db' 
+uri = "mongodb://localhost:27017/"
 client = pymongo.MongoClient(uri)
 db = client['mongo_first_db']
 items = db['transactions']
@@ -16,7 +16,7 @@ items = db['transactions']
 @auth.get_password
 def get_password(username):
 	if username == 'nidhi':
-		return 'nidhi'
+		return 'nidhi123'
 	return None
 
 class JSONEncoder(json.JSONEncoder):
@@ -28,18 +28,23 @@ class JSONEncoder(json.JSONEncoder):
 
 @app.route('/search', methods=['GET'])
 def get_all_items():
-	docs = [doc for doc in db.items.find()]
+	docs = [doc for doc in items.find({})]
 	print(docs)
 	JSONEncoder().encode(docs)
 	return jsonify({'docs':JSONEncoder().encode(docs)})
-	s
-@app.route('/search/<item>', methods=['GET'])
+	
+@app.route('/search/<string:item>', methods=['GET'])
 def get_one_item(item):
+	collections = db['transactions']
+	docs = [doc for doc in collections.find({},{item:1,'_id':0})]
+	
+	return Response(json.dumps({'success':True, 'message':docs}))
+	
 	#docs = [for doc in db.items.find(items:{$elemMatch:{return:item}}})]
-	docs = [doc for doc in db.items.find({},{"[item]":1})]
-	print(docs)
-	JSONEncoder().encode(docs)
-	return jsonify({'docs':JSONEncoder().encode(docs)})
+	#docs = [doc for doc in items.find({},{"[item]":1,'_id':0})]
+	#print(docs)
+	#JSONEncoder().encode(docs)
+	#return jsonify({"docs":JSONEncoder().encode(docs)})
 
 @app.route('/add', methods=['GET'])
 def add():
