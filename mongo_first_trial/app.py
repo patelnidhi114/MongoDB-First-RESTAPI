@@ -32,11 +32,12 @@ def get_all_items():
 	print(docs)
 	JSONEncoder().encode(docs)
 	return jsonify({'docs':JSONEncoder().encode(docs)})
-	
+	s
 @app.route('/search/<item>', methods=['GET'])
 def get_one_item(item):
-	docs = [doc for doc in db.items.find({'item':item})]
-	#print(docs)
+	#docs = [for doc in db.items.find(items:{$elemMatch:{return:item}}})]
+	docs = [doc for doc in db.items.find({},{"[item]":1})]
+	print(docs)
 	JSONEncoder().encode(docs)
 	return jsonify({'docs':JSONEncoder().encode(docs)})
 
