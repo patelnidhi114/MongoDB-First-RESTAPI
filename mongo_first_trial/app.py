@@ -18,34 +18,33 @@ def get_password(username):
 	if username == 'nidhi':
 		return 'nidhi123'
 	return None
-
+	
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    raise TypeError
 
 @app.route('/search', methods=['GET'])
 def get_all_items():
 	docs = [doc for doc in items.find({})]
 	print(docs)
 	JSONEncoder().encode(docs)
-	return jsonify({'docs':JSONEncoder().encode(docs)})
+	return jsonify({'aline':JSONEncoder().encode(docs)})
 	
-@app.route('/search/<string:item>', methods=['GET'])
-def get_one_item(item):
+@app.route('/search/<item1>', methods=['GET'])
+def get_one_item(item1):
 	collections = db['transactions']
-	docs = [doc for doc in collections.find({},{item:1,'_id':0})]
+	docs = collections.find()[0]
+	result = docs[item1]
+	print(result)
+	return Response(json.dumps(result, default=set_default))
 	
-	return Response(json.dumps({'success':True, 'message':docs}))
-	
-	#docs = [for doc in db.items.find(items:{$elemMatch:{return:item}}})]
-	#docs = [doc for doc in items.find({},{"[item]":1,'_id':0})]
-	#print(docs)
-	#JSONEncoder().encode(docs)
-	#return jsonify({"docs":JSONEncoder().encode(docs)})
-
 @app.route('/add', methods=['GET'])
 def add():
 	user = mongo.db.users
